@@ -54,14 +54,27 @@ mon_kerninfo(int argc, char **argv, struct Trapframe *tf)
 	return 0;
 }
 
+int *  print_frame(int * ebp) 
+{
+	int return_address = ebp[1];
+	int i = 0;
+	int * args = &ebp[2];
+	struct Eipdebuginfo eipInfo;
+	debuginfo_eip(return_address, &eipInfo);
+	cprintf("ebp %08x  eip %08x  args %08x %08x %08x %08x %08x\n", ebp, return_address, args[0], args[1], args[2], args[3], args[4]);
+	cprintf("       %s:%d: %.*s+%d\n", eipInfo.eip_file, eipInfo.eip_line, eipInfo.eip_fn_namelen, eipInfo.eip_fn_name, return_address - eipInfo.eip_fn_addr); 
+	return (int *) (ebp[0]);
+}
+
 int
 mon_backtrace(int argc, char **argv, struct Trapframe *tf)
 {
-	// Your code here.
+	int * ebp = (int *) read_ebp();
+	while (ebp != NULL) {
+		ebp = print_frame(ebp);
+	}
 	return 0;
 }
-
-
 
 /***** Kernel monitor command interpreter *****/
 
