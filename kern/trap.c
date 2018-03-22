@@ -65,6 +65,105 @@ trap_init(void)
 	extern struct Segdesc gdt[];
 
 	// LAB 3: Your code here.
+	
+	extern void h0(void);
+	extern void h1(void);
+	extern void h2(void);
+	extern void h3(void);
+	extern void h4(void);
+	extern void h5(void);
+	extern void h6(void);
+	extern void h7(void);
+	extern void h8(void);
+	extern void h9(void);
+	extern void h10(void);
+	extern void h11(void);
+	extern void h12(void);
+	extern void h13(void);
+	extern void h14(void);
+	extern void h15(void);
+	extern void h16(void);
+	extern void h17(void);
+	extern void h18(void);
+	extern void h19(void);
+	extern void h20(void);
+	extern void h21(void);
+	extern void h22(void);
+	extern void h23(void);
+	extern void h24(void);
+	extern void h25(void);
+	extern void h26(void);
+	extern void h27(void);
+	extern void h28(void);
+	extern void h29(void);
+	extern void h30(void);
+	extern void h31(void);
+	extern void h32(void);
+	extern void h33(void);
+	extern void h34(void);
+	extern void h35(void);
+	extern void h36(void);
+	extern void h37(void);
+	extern void h38(void);
+	extern void h39(void);
+	extern void h40(void);
+	extern void h41(void);
+	extern void h42(void);
+	extern void h43(void);
+	extern void h44(void);
+	extern void h45(void);
+	extern void h46(void);
+	extern void h47(void);
+	extern void h48(void);
+	SETGATE(idt[0], 1, GD_KT, h0, 0);
+	SETGATE(idt[1], 1, GD_KT, h1, 0);
+	SETGATE(idt[2], 1, GD_KT, h2, 0);
+	SETGATE(idt[3], 1, GD_KT, h3, 3);
+	SETGATE(idt[4], 1, GD_KT, h4, 0);
+	SETGATE(idt[5], 1, GD_KT, h5, 0);
+	SETGATE(idt[6], 1, GD_KT, h6, 0);
+	SETGATE(idt[7], 1, GD_KT, h7, 0);
+	SETGATE(idt[8], 1, GD_KT, h8, 0);
+	SETGATE(idt[9], 1, GD_KT, h9, 0);
+	SETGATE(idt[10], 1, GD_KT, h10, 0);
+	SETGATE(idt[11], 1, GD_KT, h11, 0);
+	SETGATE(idt[12], 1, GD_KT, h12, 0);
+	SETGATE(idt[13], 1, GD_KT, h13, 0);
+	SETGATE(idt[14], 1, GD_KT, h14, 0);
+	SETGATE(idt[15], 1, GD_KT, h15, 0);
+	SETGATE(idt[16], 1, GD_KT, h16, 0);
+	SETGATE(idt[17], 1, GD_KT, h17, 0);
+	SETGATE(idt[18], 1, GD_KT, h18, 0);
+	SETGATE(idt[19], 1, GD_KT, h19, 0);
+	SETGATE(idt[20], 1, GD_KT, h20, 0);
+	SETGATE(idt[21], 1, GD_KT, h21, 0);
+	SETGATE(idt[22], 1, GD_KT, h22, 0);
+	SETGATE(idt[23], 1, GD_KT, h23, 0);
+	SETGATE(idt[24], 1, GD_KT, h24, 0);
+	SETGATE(idt[25], 1, GD_KT, h25, 0);
+	SETGATE(idt[26], 1, GD_KT, h26, 0);
+	SETGATE(idt[27], 1, GD_KT, h27, 0);
+	SETGATE(idt[28], 1, GD_KT, h28, 0);
+	SETGATE(idt[29], 1, GD_KT, h29, 0);
+	SETGATE(idt[30], 1, GD_KT, h30, 0);
+	SETGATE(idt[31], 1, GD_KT, h31, 0);
+	SETGATE(idt[32], 0, GD_KT, h32, 0);
+	SETGATE(idt[33], 0, GD_KT, h33, 0);
+	SETGATE(idt[34], 0, GD_KT, h34, 0);
+	SETGATE(idt[35], 0, GD_KT, h35, 0);
+	SETGATE(idt[36], 0, GD_KT, h36, 0);
+	SETGATE(idt[37], 0, GD_KT, h37, 0);
+	SETGATE(idt[38], 0, GD_KT, h38, 0);
+	SETGATE(idt[39], 0, GD_KT, h39, 0);
+	SETGATE(idt[40], 0, GD_KT, h40, 0);
+	SETGATE(idt[41], 0, GD_KT, h41, 0);
+	SETGATE(idt[42], 0, GD_KT, h42, 0);
+	SETGATE(idt[43], 0, GD_KT, h43, 0);
+	SETGATE(idt[44], 0, GD_KT, h44, 0);
+	SETGATE(idt[45], 0, GD_KT, h45, 0);
+	SETGATE(idt[46], 0, GD_KT, h46, 0);
+	SETGATE(idt[47], 0, GD_KT, h47, 0);
+	SETGATE(idt[48], 0, GD_KT, h48, 3);
 
 	// Per-CPU setup 
 	trap_init_percpu();
@@ -145,6 +244,25 @@ trap_dispatch(struct Trapframe *tf)
 	// Handle processor exceptions.
 	// LAB 3: Your code here.
 
+	switch (tf->tf_trapno) {
+	case T_PGFLT:
+		page_fault_handler(tf);
+		return;
+	case T_BRKPT:
+		monitor(tf);
+		return;
+	case T_SYSCALL:
+		tf->tf_regs.reg_eax = syscall(tf->tf_regs.reg_eax, 
+				              tf->tf_regs.reg_edx,
+				              tf->tf_regs.reg_ecx,
+				              tf->tf_regs.reg_ebx,
+				              tf->tf_regs.reg_edi,
+				              tf->tf_regs.reg_esi);
+		return;
+	default:
+		break;
+	}
+
 	// Unexpected trap: The user process or the kernel has a bug.
 	print_trapframe(tf);
 	if (tf->tf_cs == GD_KT)
@@ -205,6 +323,9 @@ page_fault_handler(struct Trapframe *tf)
 	// Handle kernel-mode page faults.
 
 	// LAB 3: Your code here.
+	if ((tf->tf_cs & 3) != 3) {
+		panic("Kernel mode page faults");
+	}
 
 	// We've already handled kernel-mode exceptions, so if we get here,
 	// the page fault happened in user mode.
