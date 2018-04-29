@@ -48,6 +48,7 @@ umain(int argc, char **argv)
 
 	// feed all the integers through
 	for (i = 2; ; i++)
+		// cprintf("Send %d to env %d\n", i, id);
 		ipc_send(id, i, 0, 0);
 }
 

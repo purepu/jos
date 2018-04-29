@@ -122,38 +122,38 @@ trap_init(void)
 	extern void h46(void);
 	extern void h47(void);
 	extern void h48(void);
-	SETGATE(idt[0], 1, GD_KT, h0, 0);
-	SETGATE(idt[1], 1, GD_KT, h1, 0);
-	SETGATE(idt[2], 1, GD_KT, h2, 0);
-	SETGATE(idt[3], 1, GD_KT, h3, 3);
-	SETGATE(idt[4], 1, GD_KT, h4, 0);
-	SETGATE(idt[5], 1, GD_KT, h5, 0);
-	SETGATE(idt[6], 1, GD_KT, h6, 0);
-	SETGATE(idt[7], 1, GD_KT, h7, 0);
-	SETGATE(idt[8], 1, GD_KT, h8, 0);
-	SETGATE(idt[9], 1, GD_KT, h9, 0);
-	SETGATE(idt[10], 1, GD_KT, h10, 0);
-	SETGATE(idt[11], 1, GD_KT, h11, 0);
-	SETGATE(idt[12], 1, GD_KT, h12, 0);
-	SETGATE(idt[13], 1, GD_KT, h13, 0);
-	SETGATE(idt[14], 1, GD_KT, h14, 0);
-	SETGATE(idt[15], 1, GD_KT, h15, 0);
-	SETGATE(idt[16], 1, GD_KT, h16, 0);
-	SETGATE(idt[17], 1, GD_KT, h17, 0);
-	SETGATE(idt[18], 1, GD_KT, h18, 0);
-	SETGATE(idt[19], 1, GD_KT, h19, 0);
-	SETGATE(idt[20], 1, GD_KT, h20, 0);
-	SETGATE(idt[21], 1, GD_KT, h21, 0);
-	SETGATE(idt[22], 1, GD_KT, h22, 0);
-	SETGATE(idt[23], 1, GD_KT, h23, 0);
-	SETGATE(idt[24], 1, GD_KT, h24, 0);
-	SETGATE(idt[25], 1, GD_KT, h25, 0);
-	SETGATE(idt[26], 1, GD_KT, h26, 0);
-	SETGATE(idt[27], 1, GD_KT, h27, 0);
-	SETGATE(idt[28], 1, GD_KT, h28, 0);
-	SETGATE(idt[29], 1, GD_KT, h29, 0);
-	SETGATE(idt[30], 1, GD_KT, h30, 0);
-	SETGATE(idt[31], 1, GD_KT, h31, 0);
+	SETGATE(idt[0], 0, GD_KT, h0, 0);
+	SETGATE(idt[1], 0, GD_KT, h1, 0);
+	SETGATE(idt[2], 0, GD_KT, h2, 0);
+	SETGATE(idt[3], 0, GD_KT, h3, 3);
+	SETGATE(idt[4], 0, GD_KT, h4, 0);
+	SETGATE(idt[5], 0, GD_KT, h5, 0);
+	SETGATE(idt[6], 0, GD_KT, h6, 0);
+	SETGATE(idt[7], 0, GD_KT, h7, 0);
+	SETGATE(idt[8], 0, GD_KT, h8, 0);
+	SETGATE(idt[9], 0, GD_KT, h9, 0);
+	SETGATE(idt[10], 0, GD_KT, h10, 0);
+	SETGATE(idt[11], 0, GD_KT, h11, 0);
+	SETGATE(idt[12], 0, GD_KT, h12, 0);
+	SETGATE(idt[13], 0, GD_KT, h13, 0);
+	SETGATE(idt[14], 0, GD_KT, h14, 0);
+	SETGATE(idt[15], 0, GD_KT, h15, 0);
+	SETGATE(idt[16], 0, GD_KT, h16, 0);
+	SETGATE(idt[17], 0, GD_KT, h17, 0);
+	SETGATE(idt[18], 0, GD_KT, h18, 0);
+	SETGATE(idt[19], 0, GD_KT, h19, 0);
+	SETGATE(idt[20], 0, GD_KT, h20, 0);
+	SETGATE(idt[21], 0, GD_KT, h21, 0);
+	SETGATE(idt[22], 0, GD_KT, h22, 0);
+	SETGATE(idt[23], 0, GD_KT, h23, 0);
+	SETGATE(idt[24], 0, GD_KT, h24, 0);
+	SETGATE(idt[25], 0, GD_KT, h25, 0);
+	SETGATE(idt[26], 0, GD_KT, h26, 0);
+	SETGATE(idt[27], 0, GD_KT, h27, 0);
+	SETGATE(idt[28], 0, GD_KT, h28, 0);
+	SETGATE(idt[29], 0, GD_KT, h29, 0);
+	SETGATE(idt[30], 0, GD_KT, h30, 0);
+	SETGATE(idt[31], 0, GD_KT, h31, 0);
 	SETGATE(idt[32], 0, GD_KT, h32, 0);
 	SETGATE(idt[33], 0, GD_KT, h33, 0);
 	SETGATE(idt[34], 0, GD_KT, h34, 0);
@@ -307,6 +307,12 @@ trap_dispatch(struct Trapframe *tf)
 	// Handle clock interrupts. Don't forget to acknowledge the
 	// interrupt using lapic_eoi() before calling the scheduler!
 	// LAB 4: Your code here.
+	
+	if (tf->tf_trapno == IRQ_OFFSET + IRQ_TIMER) {
+		lapic_eoi();
+		sched_yield();
+		return;
+	}
 
 	// Unexpected trap: The user process or the kernel has a bug.
 	print_trapframe(tf);
@@ -337,6 +343,9 @@ trap(struct Trapframe *tf)
 	// Check that interrupts are disabled.  If this assertion
 	// fails, DO NOT be tempted to fix it by inserting a "cli" in
 	// the interrupt path.
+	if ((read_eflags() & FL_IF)) {
+		print_trapframe(tf);
+	}
 	assert(!(read_eflags() & FL_IF));
 
 	if ((tf->tf_cs & 3) == 3) {
@@ -442,14 +451,16 @@ page_fault_handler(struct Trapframe *tf)
 		env_destroy(curenv);
 		return;
 	}
-	user_mem_assert(curenv, (const void *)(UXSTACKTOP - PGSIZE), PGSIZE, PTE_W);
 
 	uintptr_t esp = curenv->env_tf.tf_esp;
 	if (esp >= UXSTACKTOP - PGSIZE && esp < UXSTACKTOP) {
 		utf = (struct UTrapframe *)(esp - 4) - 1;
 	} else {
-		utf = ((struct UTrapframe *) USTACKTOP) - 1;
+		utf = ((struct UTrapframe *) UXSTACKTOP) - 1;
 	}
+
+	user_mem_assert(curenv, (const void *) utf, sizeof(struct UTrapframe), PTE_W);
+
 	utf->utf_fault_va = fault_va;
 	utf->utf_err = curenv->env_tf.tf_err;
 	utf->utf_regs = curenv->env_tf.tf_regs;
