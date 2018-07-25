@@ -76,7 +76,9 @@ duppage(envid_t envid, unsigned pn)
 	//panic("duppage not implemented");
 	
 	pte_t pte = uvpt[pn];
-	if (((pte & PTE_W) == PTE_W) || ((pte & PTE_COW) == PTE_COW)) {
+	if ((pte & PTE_SHARE) == PTE_SHARE) {
+		perm = (pte & PTE_SYSCALL);
+	} else if (((pte & PTE_W) == PTE_W) || ((pte & PTE_COW) == PTE_COW)) {
 		perm = PTE_COW;
 	} else {
 		perm = 0;

@@ -297,11 +297,38 @@ map_segment(envid_t child, uintptr_t va, size_t memsz,
 	return 0;
 }
 
+// Whether the va is mapped to a physical page. If yes, return 1, otherwise return 0.
+// va does not need to be page aligned. 
+static
+int
+is_mapped(void *va)
+{
+	pte_t pte;
+	pde_t pde = uvpd[PDX(va)];
+	if ((pde & PTE_P) == PTE_P) {
+		pte = uvpt[PGNUM(va)];
+		if ((pte & PTE_P) == PTE_P) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
 // Copy the mappings for shared pages into the child address space.
 static int
 copy_shared_pages(envid_t child)
 {
 	// LAB 5: Your code here.
+	unsigned pgnum;
+	int r;
+	for (pgnum = 0; pgnum < PGNUM(USTACKTOP); pgnum++) {
+		if (is_mapped((void *) (pgnum * PGSIZE)) && ((uvpt[pgnum] & PTE_SHARE) == PTE_SHARE)) {
+			r = sys_page_map(0, (void *)(pgnum * PGSIZE), child, (void *)(pgnum * PGSIZE), (uvpt[pgnum] & PTE_SYSCALL) | PTE_U | PTE_P);
+			if (r < 0) {
+				return r;
+			}
+		}
+	}
 	return 0;
 }
 
